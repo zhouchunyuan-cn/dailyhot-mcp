@@ -25,8 +25,8 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.20"]
-dev = ["pytest>=7.0", "ruff>=0.4"]
+mcp = ["mcp>=1.20,<2"]  # mcp 2.x 改名 FastMCP→MCPServer，v2 适配进行中
+dev = ["pytest>=7.0", "ruff>=0.4", "mcp>=1.20,<2"]
 
 [project.scripts]
 dailyhot = "dailyhot.cli:main"

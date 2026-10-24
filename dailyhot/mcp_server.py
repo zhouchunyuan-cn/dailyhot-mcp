@@ -20,8 +20,9 @@ def build_server():
         from mcp.server.fastmcp import FastMCP
     except ImportError as e:
         raise ImportError(
-            "未安装官方 mcp SDK。请运行：pip install 'mcp>=1.20'"
-            "（或 pip install 'dailyhot-mcp[mcp]'）"
+            "未安装官方 mcp SDK（v1.x）。请运行：pip install 'mcp>=1.20,<2'"
+            "（或 pip install 'dailyhot-mcp[mcp]'）。注意 mcp 2.x 改名了 FastMCP，"
+            "当前代码需锁定 1.x。"
         ) from e
 
     from .sources import get_hot, list_sources
