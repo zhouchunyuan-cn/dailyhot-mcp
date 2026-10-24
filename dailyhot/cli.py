@@ -11,6 +11,7 @@ import argparse
 import json
 import sys
 
+from . import __version__
 from .sources import SOURCES, get_hot, list_sources
 
 
@@ -66,6 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="dailyhot",
         description="中文热榜聚合 —— 库 / CLI / MCP server 三层接入",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = parser.add_subparsers(dest="command")
 
     sub.add_parser("list", help="列出全部可用源").set_defaults(func=cmd_list)

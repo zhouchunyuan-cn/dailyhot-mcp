@@ -67,6 +67,14 @@ class TestCLI:
             cli_main([])
         assert ei.value.code == 2
 
+    def test_version_flag(self, capsys):
+        from dailyhot import __version__
+
+        with pytest.raises(SystemExit) as ei:
+            cli_main(["--version"])
+        assert ei.value.code == 0
+        assert __version__ in capsys.readouterr().out
+
     def test_get_network_error_exits_1(self, monkeypatch, capsys):
         import dailyhot.cli as cli
 
