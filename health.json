@@ -1,0 +1,56 @@
+{
+  "badge": {
+    "schemaVersion": 1,
+    "label": "sources online",
+    "message": "9/9",
+    "color": "brightgreen"
+  },
+  "detail": {
+    "zhihu": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 219
+    },
+    "baidu": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 109
+    },
+    "toutiao": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 94
+    },
+    "bilibili": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 219
+    },
+    "sspai": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 797
+    },
+    "wallstreetcn": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 219
+    },
+    "v2ex": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 453
+    },
+    "hackernews": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 812
+    },
+    "github": {
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 813
+    }
+  },
+  "checked_at": "2026-10-24T07:24:33Z"
+}

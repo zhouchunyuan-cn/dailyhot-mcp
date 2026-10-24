@@ -1,0 +1,46 @@
+name: Source Health Check
+
+# 本项目的核心卖点：每天实测全部热榜源，徽章实时显示在线数，坏源自动开 issue
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 每天北京时间 10:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: 检查全部源
+        run: python scripts/health_check.py
+      - name: 提交 health.json（徽章数据）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add health.json
+          git diff --cached --quiet || (git commit -m "chore: 每日源健康检查 $(date -u +%F)" && git push)
+      - name: 源下线时自动开 issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          data = json.load(open("health.json", encoding="utf-8"))
+          down = data["detail"]
+          failed = {k: v.get("error", "") for k, v in down.items() if not v["ok"]}
+          if not failed:
+              print("全部源在线，无需开 issue"); raise SystemExit(0)
+          body = "**每日自动健康检查发现以下源下线：**\n\n" + "\n".join(
+              f"- `{k}`: {err[:120]}" for k, err in failed.items())
+          subprocess.run(["gh", "issue", "create", "--title",
+                          f"[health] {len(failed)} 个源下线",
+                          "--body", body, "--label", "source-down"], check=False)
+          PY
