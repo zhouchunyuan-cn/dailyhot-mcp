@@ -34,6 +34,7 @@
 
 ```bash
 pip install -e ".[mcp]"
+dailyhot --version               # 版本号
 dailyhot list                    # 全部源
 dailyhot get zhihu -n 10         # 知乎热榜前 10（--json 输出 JSON）
 dailyhot health                  # 逐源实测可用性
