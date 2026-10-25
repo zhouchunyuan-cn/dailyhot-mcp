@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dailyhot-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "中文热榜聚合 MCP server —— 库 / CLI / MCP 三层接入，源可用性每日实测透明可见"
 readme = "README.md"
 requires-python = ">=3.10"
