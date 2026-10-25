@@ -15,6 +15,6 @@ CLI：
 from .models import HotItem
 from .sources import SOURCES, get_hot, list_sources
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = ["HotItem", "SOURCES", "get_hot", "list_sources", "__version__"]
