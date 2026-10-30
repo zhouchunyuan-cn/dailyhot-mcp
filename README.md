@@ -1,6 +1,7 @@
 # DailyHot MCP
 
 [![Sources Online](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zhouchunyuan-cn/dailyhot-mcp/main/health.json)](.github/workflows/health.yml)
+[![Glama rating](https://glama.ai/mcp/servers/zhouchunyuan-cn/dailyhot-mcp/badges/score.svg)](https://glama.ai/mcp/servers/zhouchunyuan-cn/dailyhot-mcp)
 [![CI](https://github.com/zhouchunyuan-cn/dailyhot-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/zhouchunyuan-cn/dailyhot-mcp/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
