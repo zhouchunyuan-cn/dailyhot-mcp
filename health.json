@@ -9,48 +9,48 @@
     "zhihu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1586
+      "elapsed_ms": 1115
     },
     "baidu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1530
+      "elapsed_ms": 1421
     },
     "toutiao": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1471
+      "elapsed_ms": 1167
     },
     "bilibili": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 767
+      "elapsed_ms": 758
     },
     "sspai": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1734
+      "elapsed_ms": 1369
     },
     "wallstreetcn": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1004
+      "elapsed_ms": 675
     },
     "v2ex": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 169
+      "elapsed_ms": 137
     },
     "hackernews": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 329
+      "elapsed_ms": 239
     },
     "github": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1363
+      "elapsed_ms": 1446
     }
   },
-  "checked_at": "2026-10-30T07:51:58Z"
+  "checked_at": "2026-10-31T07:41:17Z"
 }
