@@ -2,55 +2,55 @@
   "badge": {
     "schemaVersion": 1,
     "label": "sources online",
-    "message": "8/9",
-    "color": "orange"
+    "message": "9/9",
+    "color": "brightgreen"
   },
   "detail": {
     "zhihu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1389
+      "elapsed_ms": 1261
     },
     "baidu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1490
+      "elapsed_ms": 3098
     },
     "toutiao": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1766
+      "elapsed_ms": 1095
     },
     "bilibili": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 813
+      "elapsed_ms": 857
     },
     "sspai": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 11396
+      "elapsed_ms": 1662
     },
     "wallstreetcn": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 3297
+      "elapsed_ms": 2252
     },
     "v2ex": {
-      "ok": false,
-      "error": "HTTP 403: <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"",
-      "elapsed_ms": 178
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 165
     },
     "hackernews": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 224
+      "elapsed_ms": 285
     },
     "github": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1658
+      "elapsed_ms": 990
     }
   },
-  "checked_at": "2026-11-08T08:16:03Z"
+  "checked_at": "2026-11-09T08:50:29Z"
 }
