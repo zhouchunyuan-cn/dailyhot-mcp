@@ -2,55 +2,55 @@
   "badge": {
     "schemaVersion": 1,
     "label": "sources online",
-    "message": "8/9",
-    "color": "orange"
+    "message": "9/9",
+    "color": "brightgreen"
   },
   "detail": {
     "zhihu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 1224
+      "elapsed_ms": 1695
     },
     "baidu": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 2983
+      "elapsed_ms": 2492
     },
     "toutiao": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 782
+      "elapsed_ms": 1130
     },
     "bilibili": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 751
+      "elapsed_ms": 618
     },
     "sspai": {
-      "ok": false,
-      "error": "请求失败: <urlopen error _ssl.c:994: The handshake operation timed out>",
-      "elapsed_ms": 10680
+      "ok": true,
+      "items": 3,
+      "elapsed_ms": 1453
     },
     "wallstreetcn": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 3351
+      "elapsed_ms": 315
     },
     "v2ex": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 169
+      "elapsed_ms": 312
     },
     "hackernews": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 259
+      "elapsed_ms": 243
     },
     "github": {
       "ok": true,
       "items": 3,
-      "elapsed_ms": 258
+      "elapsed_ms": 1486
     }
   },
-  "checked_at": "2026-11-20T09:22:07Z"
+  "checked_at": "2026-11-21T08:56:59Z"
 }
