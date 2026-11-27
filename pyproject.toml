@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dailyhot-mcp"
-version = "0.1.1"
+version = "0.2.0"
 description = "中文热榜聚合 MCP server —— 库 / CLI / MCP 三层接入，源可用性每日实测透明可见"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,8 +25,8 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.20,<2"]  # mcp 2.x 改名 FastMCP→MCPServer，v2 适配进行中
-dev = ["pytest>=7.0", "ruff>=0.4", "mcp>=1.20,<2"]
+mcp = ["mcp>=1.20"]  # 1.x(FastMCP)/2.x(MCPServer) 双兼容
+dev = ["pytest>=7.0", "ruff>=0.4", "mcp>=1.20"]
 
 [project.scripts]
 dailyhot = "dailyhot.cli:main"

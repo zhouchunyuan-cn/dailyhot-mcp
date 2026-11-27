@@ -59,7 +59,11 @@ def cmd_health(args) -> None:
 def cmd_serve(args) -> None:
     from .mcp_server import main as serve_main
 
-    serve_main()
+    try:
+        serve_main(transport="http" if args.http else "stdio", host=args.host, port=args.port)
+    except ImportError as e:
+        print(f"错误：{e}", file=sys.stderr)
+        sys.exit(1)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -82,7 +86,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_health.add_argument("--json", action="store_true", help="以 JSON 输出")
     p_health.set_defaults(func=cmd_health)
 
-    sub.add_parser("serve", help="启动 MCP server（stdio）").set_defaults(func=cmd_serve)
+    p_serve = sub.add_parser(
+        "serve", help="启动 MCP server（默认 stdio；--http 为 streamable-http）"
+    )
+    p_serve.add_argument(
+        "--http", action="store_true", help="以 streamable-http 启动（Glama 云端部署/远程客户端）"
+    )
+    p_serve.add_argument("--host", default="127.0.0.1", help="http 监听地址（默认 127.0.0.1）")
+    p_serve.add_argument("--port", type=int, default=8000, help="http 监听端口（默认 8000）")
+    p_serve.set_defaults(func=cmd_serve)
     return parser
 
 

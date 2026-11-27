@@ -235,20 +235,106 @@ class TestHealthScript:
 
 
 class TestMCPServer:
-    def test_build_server_registers_tools(self):
+    """MCP 工具：多源查询、结构化错误（不抛异常）、1.x/2.x 双兼容"""
+
+    def _tool_fn(self, name):
+        """取注册的工具函数（FastMCP/MCPServer 都把原函数挂在 .fn 上）"""
         import asyncio
 
         mcp = __import__("dailyhot.mcp_server", fromlist=["build_server"]).build_server()
-        tools = asyncio.run(mcp.list_tools())  # FastMCP 的 list_tools 是协程
-        names = {t.name for t in tools}
+        tools = asyncio.run(mcp.list_tools())
+        assert name in {t.name for t in tools}
+        return mcp._tool_manager.get_tool(name).fn
+
+    def test_tools_registered(self):
+        import asyncio
+
+        mcp = __import__("dailyhot.mcp_server", fromlist=["build_server"]).build_server()
+        names = {t.name for t in asyncio.run(mcp.list_tools())}
         assert {"sources", "get_hot_list"} <= names
 
-    def test_missing_sdk_hint(self, monkeypatch):
-        import sys as _sys
+    def test_sources_tool_shape(self):
+        import dailyhot.mcp_server as M
 
-        # 子模块已缓存时 from import 不会触碰父模块，必须一并模拟为未安装
-        monkeypatch.setitem(_sys.modules, "mcp", None)
-        monkeypatch.setitem(_sys.modules, "mcp.server", None)
-        monkeypatch.setitem(_sys.modules, "mcp.server.fastmcp", None)
-        with pytest.raises(ImportError, match="pip install"):
-            __import__("dailyhot.mcp_server", fromlist=["build_server"]).build_server()
+        mcp = M.build_server()
+        fn = mcp._tool_manager.get_tool("sources").fn
+        out = fn()
+        assert {"name": "zhihu", "title": "知乎热榜"} in out
+        assert len(out) == 9
+
+    def test_multi_source_query(self, monkeypatch):
+        import dailyhot.sources as S
+
+        monkeypatch.setattr(S, "get_hot", lambda name, limit: _fake_items(2))
+        import dailyhot.mcp_server as M
+
+        fn = M.build_server()._tool_manager.get_tool("get_hot_list").fn
+        out = fn(["zhihu", "bilibili"], limit=5)
+        assert set(out["results"]) == {"zhihu", "bilibili"}
+        assert len(out["results"]["zhihu"]) == 2
+        assert out["errors"] == {}
+
+    def test_unknown_source_returns_available_not_raises(self, monkeypatch):
+        """源名写错：结构化返回 + available_sources，模型可自纠"""
+        import dailyhot.mcp_server as M
+
+        fn = M.build_server()._tool_manager.get_tool("get_hot_list").fn
+        out = fn(["nope"], limit=3)
+        assert "nope" in out["errors"]
+        assert "zhihu" in out["errors"]["available_sources"]
+        assert out["results"] == {}
+
+    def test_partial_failure_isolated(self, monkeypatch):
+        """一个源挂了不影响其他源；错误结构化"""
+        import dailyhot.mcp_server as M
+        import dailyhot.sources as S
+
+        def fake(name, limit):
+            if name == "github":
+                raise RuntimeError("timed out")
+            return _fake_items(1)
+
+        monkeypatch.setattr(S, "get_hot", fake)
+        fn = M.build_server()._tool_manager.get_tool("get_hot_list").fn
+        out = fn(["zhihu", "github"], limit=3)
+        assert len(out["results"]["zhihu"]) == 1
+        assert "timed out" in out["errors"]["github"]
+        assert "available_sources" not in out["errors"]  # 不是名字错，不提示
+
+    def test_limit_clamped_and_empty_sources(self):
+        import dailyhot.mcp_server as M
+
+        fn = M.build_server()._tool_manager.get_tool("get_hot_list").fn
+        assert fn([], limit=10)["errors"]["_"]
+        assert "available_sources" in fn([], limit=10)["errors"]
+
+    def test_sdk_2x_fallback(self, monkeypatch):
+        """mcp 1.x 不可导入时走 2.x 的 MCPServer 路径"""
+        import sys
+
+        import dailyhot.mcp_server as M
+
+        class FakeServer:
+            def __init__(self, name):
+                self.name = name
+
+        monkeypatch.setitem(sys.modules, "mcp.server.fastmcp", None)
+        fake_mod = type(sys)("mcp.server.mcpserver")
+        fake_mod.MCPServer = FakeServer
+        monkeypatch.setitem(sys.modules, "mcp.server.mcpserver", fake_mod)
+        try:
+            inst, cls = M._make_server()
+            assert cls is FakeServer and inst.name == "dailyhot"
+        finally:
+            for key in ("mcp.server.fastmcp", "mcp.server.mcpserver"):
+                sys.modules.pop(key, None)
+
+    def test_missing_sdk_hint(self, monkeypatch):
+        import sys
+
+        monkeypatch.setitem(sys.modules, "mcp", None)
+        monkeypatch.setitem(sys.modules, "mcp.server", None)
+        monkeypatch.setitem(sys.modules, "mcp.server.fastmcp", None)
+        monkeypatch.setitem(sys.modules, "mcp.server.mcpserver", None)
+        with pytest.raises(ImportError, match="dailyhot-mcp"):
+            __import__("dailyhot.mcp_server", fromlist=["build_server"])._make_server()

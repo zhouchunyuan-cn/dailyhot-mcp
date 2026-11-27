@@ -44,12 +44,25 @@ class TestParsers:
             assert item.title.strip()
             assert item.rank >= 1
 
-    def test_github_parses(self):
+    def test_github_parses_per_article(self):
+        """按 article 块解析：仓库/简介/stars today 各在自己块内，不会错位"""
         items = SOURCES["github"].parse(_load("github"))
-        assert len(items) >= 5
-        # 仓库路径形如 owner/repo，URL 指向 github.com
+        assert len(items) >= 10
         assert items[0].url.startswith("https://github.com/")
         assert "/" in items[0].title.split(" — ")[0]
+        # 增强字段：stars today 与语言
+        assert items[0].score and "stars today" in items[0].score
+
+    def test_github_desc_never_misaligned(self):
+        """无简介仓库不会导致后续简介错位（旧实现的缺陷）"""
+        html = (
+            '<article class="Box-row"><h2><a href="/a/no-desc"></a></h2></article>'
+            '<article class="Box-row"><h2><a href="/b/has-desc"></a></h2>'
+            '<p class="col-9">correct description</p></article>'
+        )
+        items = SOURCES["github"].parse(html)
+        assert items[0].title == "a/no-desc"  # 无简介 → 无尾巴
+        assert "correct description" in items[1].title  # 简介挂在正确的仓库上
 
     @pytest.mark.parametrize("name", sorted(SOURCES))
     def test_ranks_sequential(self, name):

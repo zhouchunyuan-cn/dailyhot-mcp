@@ -33,7 +33,7 @@ MAX_LIMIT = 50
 def _items(
     raw_items: list[Any],
     *,
-    title: str,
+    title: Callable[[Any], str | None],
     url: Callable[[Any], str] | None = None,
     score: Callable[[Any], str] | None = None,
 ) -> list[HotItem]:
@@ -146,23 +146,43 @@ def parse_hackernews(d: dict) -> list[HotItem]:
     )
 
 
-_REPO_RE = re.compile(r'<h2[^>]*>\s*<a[^>]+href="(/[^"]+)"', re.DOTALL)
-_DESC_RE = re.compile(r'<p class="col-9[^"]*">\s*(.*?)\s*</p>', re.DOTALL)
+_ARTICLE_RE = re.compile(r"<article class=\"Box-row\"(.*?)</article>", re.DOTALL)
+_REPO_HREF_RE = re.compile(r'<h2[^>]*>.*?<a[^>]+href="(/[^"?]+)"', re.DOTALL)
+_DESC_RE = re.compile(r'<p class="col-9[^"]*">(.*?)</p>', re.DOTALL)
+_STARS_TODAY_RE = re.compile(r"([\d,]+)\s+stars\s+today")
+_LANG_RE = re.compile(r'itemprop="programmingLanguage">([^<]+)<')
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
 def parse_github_trending(html: str) -> list[HotItem]:
-    """GitHub Trending（HTML 页解析：h2 仓库名 + p 简介）"""
-    repos = _REPO_RE.findall(html)
-    descs = _DESC_RE.findall(html)
+    """
+    GitHub Trending：按 <article class="Box-row"> 块解析
+
+    早期实现用两条正则分别 findall 再按下标配对，页面只要多一个无简介仓库，
+    简介就会错位到别的仓库上；按块切分后每个仓库的字段都在自己块内提取。
+    """
     items: list[HotItem] = []
-    for i, path in enumerate(repos):
-        desc = _TAG_RE.sub("", descs[i]).strip() if i < len(descs) else ""
+    for block in _ARTICLE_RE.findall(html):
+        repo = _REPO_HREF_RE.search(block)
+        if not repo:
+            continue
+        path = repo.group(1)
+        desc_m = _DESC_RE.search(block)
+        desc = re.sub(r"\s+", " ", _TAG_RE.sub("", desc_m.group(1))).strip() if desc_m else ""
+        stars_m = _STARS_TODAY_RE.search(block)
+        lang_m = _LANG_RE.search(block)
+        parts = []
+        if stars_m:
+            parts.append(f"{stars_m.group(1)} stars today")
+        if lang_m:
+            parts.append(lang_m.group(1).strip())
+        score = " · ".join(parts) or None
         items.append(
             HotItem(
-                rank=i + 1,
+                rank=len(items) + 1,
                 title=path.lstrip("/") + (f" — {desc[:80]}" if desc else ""),
                 url=f"https://github.com{path}",
+                score=score,
             )
         )
     return items

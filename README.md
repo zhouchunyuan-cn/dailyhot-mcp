@@ -20,16 +20,17 @@
 **Claude Code / Cursor（MCP）**
 
 ```jsonc
-// Claude Code: claude mcp add dailyhot -- python -m dailyhot.mcp_server
+// Claude Code: claude mcp add dailyhot -- dailyhot-mcp
 // 或 mcpServers 配置：
 {
   "mcpServers": {
-    "dailyhot": { "command": "dailyhot-mcp" }   // pip install dailyhot-mcp[mcp] 后
+    "dailyhot": { "command": "dailyhot-mcp" }   // pip install "dailyhot-mcp[mcp]" 后
   }
 }
+// 远程/云端：dailyhot serve --http --port 8000（streamable-http）
 ```
 
-对模型说："现在知乎和B站在热议什么？对比一下"——它会调用 `get_hot_list` 工具。
+对模型说："现在知乎和B站在热议什么？对比一下"——它调用一次 `get_hot_list(sources=["zhihu","bilibili"])` 即可（支持多源）。
 
 **命令行**
 
@@ -45,6 +46,7 @@ dailyhot health                  # 逐源实测可用性
 
 ```python
 from dailyhot import get_hot, list_sources
+
 
 for item in get_hot("bilibili", limit=5):
     print(item.rank, item.title, item.score)  # HotItem(rank, title, url, score)
