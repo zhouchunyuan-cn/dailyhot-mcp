@@ -1,6 +1,12 @@
 name: Source Health Check
 
 # 本项目的核心卖点：每天实测全部热榜源，徽章实时显示在线数，坏源自动开 issue
+#
+# 可信性要点：
+# - health_check.py 在有源下线时退出码 1；本步骤用 `|| true` 吞掉退出码，
+#   但通过 step output 把下线状态传给后续步骤——这样 health.json（含变橙/红的
+#   徽章）总能提交上去，而不是"源挂了 CI 红、徽章永远停在旧状态"
+# - 每次运行都强制提交（checked_at 更新）：徽章据此判断时效，CI 停摆会显示 stale
 on:
   schedule:
     - cron: "0 2 * * *"   # 每天北京时间 10:00
@@ -19,27 +25,43 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
+
       - name: 检查全部源
-        run: python scripts/health_check.py
-      - name: 提交 health.json（徽章数据）
+        id: check
+        # 退出码 1 = 有源下线；用 bash 的 $? 捕获后仍让 step 成功，后续步骤照常
+        run: |
+          set +e
+          python scripts/health_check.py
+          code=$?
+          if [ "$code" -eq 0 ]; then
+            echo "down=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "down=1" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: 提交 health.json（徽章数据，每次都更新 checked_at）
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add health.json
-          git diff --cached --quiet || (git commit -m "chore: 每日源健康检查 $(date -u +%F)" && git push)
+          # 每次运行都提交：即便 detail 没变，checked_at 也变了 → 徽章时效可信
+          git commit -m "chore: 每日源健康检查 $(date -u +%F)" && git push || echo "无变更，跳过提交"
+
       - name: 源下线时自动开 issue
+        if: steps.check.outputs.down == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import json, subprocess
           data = json.load(open("health.json", encoding="utf-8"))
-          down = data["detail"]
-          failed = {k: v.get("error", "") for k, v in down.items() if not v["ok"]}
+          failed = {k: v for k, v in data["detail"].items() if not v["ok"]}
           if not failed:
-              print("全部源在线，无需开 issue"); raise SystemExit(0)
+              print("无下线源"); raise SystemExit(0)
           body = "**每日自动健康检查发现以下源下线：**\n\n" + "\n".join(
-              f"- `{k}`: {err[:120]}" for k, err in failed.items())
+              f"- `{k}` [{v.get('kind', '?')}]（重试 {v.get('attempts', 1) - 1} 次后仍失败）: "
+              f"{v.get('error', '')[:120]}" for k, v in failed.items())
           subprocess.run(["gh", "issue", "create", "--title",
                           f"[health] {len(failed)} 个源下线",
                           "--body", body, "--label", "source-down"], check=False)
